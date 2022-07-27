@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+@author: Naveen Goutham, Camille Le-Coz
+"""
+
+import numpy as np
+
+class ReliabilityDiagram:
+    def __init__(self,observation,forecast,climatology,event_lbound,event_ubound,closed_ends='both',nbins=5,weights=None):
+        '''
+        Parameters
+        ----------
+        observation : numpy.ndarray
+            Timeseries of observation/truth (1D).
+            
+        forecast : numpy.ndarray
+            Forecast array (2D) with first dimension equal to the dimension of observation,
+            and second dimension equal to the ensemble size.
+            
+        climatology : numpy.ndarray
+            Climatological array (2D) with first dimension equal to the dimension of observation, 
+            and second dimension equal to the number of years considered in climatology.
+
+        event_lbound : int or float
+            The lower bound for the event considered. 
+            Example 1: If the event considered is lower tercile, then event_lbound value is 0. 
+            Example 2: If the event considered is upper tercile, then event_lbound value is 2/3. 
+            NOTE: The value should be in the range of 0 to 1.
+            
+        event_ubound : int or float
+            The upper bound for the event considered.
+            Example 1: If the event considered is lower tercile, then event_ubound value is 1/3.
+            Example 2: If the event considered is upper tercile, then event_ubound value is 1. 
+            NOTE: The value should be in the range of 0 to 1.
+            
+        closed_ends : str, optional
+            The bounds (upper and/or lower) to include in the event formulation. Options: 'left', 'right', 'none', 'both'. 
+            Example 1: If closed_ends = 'left', then the event becomes event_lbound <= event < event_ubound. 
+            Example-2: If closed_ends = 'both', then the event becomes event_lbound <= event <= event_ubound.
+            NOTE: The default value is 'both'. The value is case sensitive.
+            
+        nbins : int, optional
+            Number of bins to stratify the forecasts into. The default is 5.
+            NOTE: The bins are of equal width.
+            
+        weights : numpy.ndarray, optional
+            The weights for the forecast data. It should have the same shape as the forecast data.
+
+        Returns
+        -------
+        None.
+
+        '''
+        #original attributes
+        self.ob = observation
+        self.fc = forecast
+        self.cl = np.sort(climatology,axis=1)
+        self.lb = event_lbound
+        self.ub = event_ubound
+        self.ends = closed_ends
+        self.bins = np.arange(0,1,1/nbins)
+        self.weights = weights
+        
+        #constructed attributes
+        self.nsim = len(self.ob)
+        self.mem_fc = self.fc.shape[1]
+        self.mem_cl = self.cl.shape[1]
+            
+    def __check_conformity(self):
+        if (self.ob.ndim != 1) and (self.fc.ndim and self.cl.ndim != 2) and (self.fc.shape[0] and self.cl.shape[0] != len(self.ob)) and (not (0 <= self.lb and self.ub <= 1)):
+            raise ValueError('Please make sure that the input parameters follow the program requirements!')
+            exit
+      
+        list_ends = ["left","right","none","both"]
+        if self.ends not in list_ends:
+            raise ValueError("Please give a valid entry.")
+            exit    
+            
+        if self.weights is not None and self.weights.shape != self.fc.shape:
+            raise ValueError("The shapes of forecast and weights must be the same.")
+            exit
+        return 
+    
+    def __get_observed_event(self,l,u):
+        #add condition for boundaries. i.e., if lbound = 0, then ob <= ubound, and if ubound = 1, then ob >= lbound
+        if self.ends == "both":
+            if self.lb != 0.0 or self.ub != 1.0:
+                return np.logical_and(np.less_equal(l,self.ob), np.less_equal(self.ob,u))
+            elif self.lb == 0.0:
+                return np.less_equal(self.ob,u)
+            elif self.ub == 1.0:
+                return np.greater_equal(self.ob,l)
+        elif self.ends == "none":
+            if self.lb != 0.0 or self.ub != 1.0:
+                return np.logical_and(np.less(l,self.ob), np.less(self.ob,u))
+            elif self.lb == 0.0:
+                return np.less(self.ob,u)
+            elif self.ub == 1.0:
+                return np.greater(self.ob,l)            
+        elif self.ends == "left":
+            if self.lb != 0.0 or self.ub != 1.0:            
+                return np.logical_and(np.less_equal(l,self.ob), np.less(self.ob,u))
+            elif self.lb == 0.0:
+                return np.less(self.ob,u)
+            elif self.ub == 1.0:
+                return np.greater_equal(self.ob,l)                
+        elif self.ends == "right":
+            if self.lb != 0.0 or self.ub != 1.0:            
+                return np.logical_and(np.less(l,self.ob), np.less_equal(self.ob,u))
+            elif self.lb == 0.0:
+                return np.less_equal(self.ob,u)
+            elif self.ub == 1.0:
+                return np.greater(self.ob,l)                            
+    
+    def __get_forecast_probability(self,l,u):
+        if self.weights is None:
+            if self.ends == "both":
+                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
+            elif self.ends == "none":
+                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
+            elif self.ends == "left":
+                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
+            elif self.ends == "right":
+                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
+        else:
+            weights = (self.weights.T/np.sum(self.weights, axis=1)).T
+            if self.ends == "both":
+                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
+            elif self.ends == "none":
+                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
+            elif self.ends == "left":
+                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
+            elif self.ends == "right":
+                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
+            
+    def contingency_table(self):
+        self.__check_conformity()
+        event_names = ['yes', 'no']
+        #getting boundaries of the event from climatology
+        l, u = np.percentile(self.cl,[100*self.lb,100*self.ub],axis=1)
+        #checking if the event occurred in reality
+        event_obs = self.__get_observed_event(l,u)
+        #retrieving the probability of occurrence of the event from forecasts
+        prob_fc = self.__get_forecast_probability(l,u)
+        #getting the index for the table
+        ind = np.searchsorted(self.bins,prob_fc,side='right') - 1
+        #initialise contingency table
+        c_table = np.zeros([len(self.bins),len(event_names)])
+        #event yes
+        c_table[:,0] = np.bincount(ind[event_obs],minlength=len(self.bins))
+        c_table[:,1] = np.bincount(ind[~event_obs],minlength=len(self.bins))
+        return c_table
+    
+    # def confidence_intervals(self):
+        self.__check_conformity()
+        
+    # def forecast_attributes(self):
+        self.__check_conformity()
+        
+    # def plot_diagram(self): 
+        self.check_conformity()
+        c_table = self.contingency_table()
+        
+        
