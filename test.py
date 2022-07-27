@@ -17,7 +17,5 @@ for k in range(6):
 
     tab_ls = data.contingency_table()
     print(tab_ls)
-    print(np.sum(tab_ls,axis=1))
-    exit()
-    #print(tab_us)
-    #rd.plot_diagram(tab_us, tab_ls, tab_ms, prob_bins=np.arange(0,1,0.1),save_file="{}/{}_week{}.png".format(folder_results,fc_name,k+1))
+
+    data.plot_diagram()
