@@ -5,6 +5,8 @@
 """
 
 import numpy as np
+import statsmodels.api as sm
+import matplotlib.pyplot as pl
 
 class ReliabilityDiagram:
     def __init__(self,observation,forecast,climatology,event_lbound,event_ubound,closed_ends='both',nbins=5,weights=None):
@@ -85,33 +87,37 @@ class ReliabilityDiagram:
     def __get_observed_event(self,l,u):
         #add condition for boundaries. i.e., if lbound = 0, then ob <= ubound, and if ubound = 1, then ob >= lbound
         if self.ends == "both":
-            if self.lb != 0.0 or self.ub != 1.0:
-                return np.logical_and(np.less_equal(l,self.ob), np.less_equal(self.ob,u))
-            elif self.lb == 0.0:
-                return np.less_equal(self.ob,u)
-            elif self.ub == 1.0:
-                return np.greater_equal(self.ob,l)
+            #if self.lb != 0.0 and self.ub != 1.0:
+            #    return np.logical_and(np.less_equal(l,self.ob), np.less_equal(self.ob,u))
+            #elif self.lb == 0.0:
+            #    return np.less_equal(self.ob,u)
+            #elif self.ub == 1.0:
+            #    return np.greater_equal(self.ob,l)
+            return np.logical_and(np.less_equal(l,self.ob), np.less_equal(self.ob,u))
         elif self.ends == "none":
-            if self.lb != 0.0 or self.ub != 1.0:
-                return np.logical_and(np.less(l,self.ob), np.less(self.ob,u))
-            elif self.lb == 0.0:
-                return np.less(self.ob,u)
-            elif self.ub == 1.0:
-                return np.greater(self.ob,l)            
+            #if self.lb != 0.0 or self.ub != 1.0:
+            #    return np.logical_and(np.less(l,self.ob), np.less(self.ob,u))
+            #elif self.lb == 0.0:
+            #    return np.less(self.ob,u)
+            #elif self.ub == 1.0:
+            #    return np.greater(self.ob,l)
+            return np.logical_and(np.less(l,self.ob), np.less(self.ob,u))
         elif self.ends == "left":
-            if self.lb != 0.0 or self.ub != 1.0:            
-                return np.logical_and(np.less_equal(l,self.ob), np.less(self.ob,u))
-            elif self.lb == 0.0:
-                return np.less(self.ob,u)
-            elif self.ub == 1.0:
-                return np.greater_equal(self.ob,l)                
+            #if self.lb != 0.0 or self.ub != 1.0:
+            #    return np.logical_and(np.less_equal(l,self.ob), np.less(self.ob,u))
+            #elif self.lb == 0.0:
+            #    return np.less(self.ob,u)
+            #elif self.ub == 1.0:
+            #    return np.greater_equal(self.ob,l)
+            return np.logical_and(np.less_equal(l,self.ob), np.less(self.ob,u))
         elif self.ends == "right":
-            if self.lb != 0.0 or self.ub != 1.0:            
-                return np.logical_and(np.less(l,self.ob), np.less_equal(self.ob,u))
-            elif self.lb == 0.0:
-                return np.less_equal(self.ob,u)
-            elif self.ub == 1.0:
-                return np.greater(self.ob,l)                            
+            #if self.lb != 0.0 or self.ub != 1.0:
+            #    return np.logical_and(np.less(l,self.ob), np.less_equal(self.ob,u))
+            #elif self.lb == 0.0:
+            #    return np.less_equal(self.ob,u)
+            #elif self.ub == 1.0:
+            #    return np.greater(self.ob,l)
+            return np.logical_and(np.less(l,self.ob), np.less_equal(self.ob,u))
     
     def __get_forecast_probability(self,l,u):
         if self.weights is None:
@@ -139,16 +145,24 @@ class ReliabilityDiagram:
         event_names = ['yes', 'no']
         #getting boundaries of the event from climatology
         l, u = np.percentile(self.cl,[100*self.lb,100*self.ub],axis=1)
+        if self.lb == 0.0:
+            l = -np.inf
+        if self.ub == 1.0:
+            u = np.inf
         #checking if the event occurred in reality
         event_obs = self.__get_observed_event(l,u)
         #retrieving the probability of occurrence of the event from forecasts
         prob_fc = self.__get_forecast_probability(l,u)
+        print(prob_fc)
         #getting the index for the table
         ind = np.searchsorted(self.bins,prob_fc,side='right') - 1
+        print(ind)
+
         #initialise contingency table
         c_table = np.zeros([len(self.bins),len(event_names)])
         #event yes
         c_table[:,0] = np.bincount(ind[event_obs],minlength=len(self.bins))
+        print(c_table[:,0])
         c_table[:,1] = np.bincount(ind[~event_obs],minlength=len(self.bins))
         return c_table
     
@@ -158,8 +172,41 @@ class ReliabilityDiagram:
     # def forecast_attributes(self):
         self.__check_conformity()
         
-    # def plot_diagram(self): 
+    def plot_diagram(self):
         self.check_conformity()
         c_table = self.contingency_table()
+        #
+        p = c_table[:,0] / (c_table[:,0] + c_table[:,1])
+        ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
+
+        #
+        xd = yd = [0,1]
+        q = self.ub - self.lb
+        clim_x = clim_y = [q,q]
+        sk_line = [q/2,(1-q)/2+q]
+
+        #
+        #
+        fig = pl.figure(figsize=(7,5))
+        pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
+        pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
+        pl.plot(clim_x,yd,color='black',linestyle=':',linewidth=0.5)
+        pl.plot(xd,sk_line,color='black',linestyle='--',linewidth=0.5)
+        pl.fill_between(xd,xd,sk_line,facecolor='grey',alpha=0.2)
+        pl.fill_betweenx(yd,yd,clim_x,facecolor='grey',alpha=0.2)
+        pl.scatter(self.bins,p,s=np.sum(c_table,axis=1)*10,color='deepskyblue',marker='o',alpha=0.5,edgecolors='none')
+        pl.plot(self.bins,p,color='deepskyblue',linestyle='-',linewidth=0.8,label='upper tercile')
+        pl.errorbar(self.bins,p,yerr=[p - ci_low,ci_upp - p],ecolor='deepskyblue',elinewidth=0.8,alpha=0.5)
+
+        pl.ylim(0.0,1.0)
+        pl.xlim(0.0,1.0)
+        pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
+        pl.xlabel('Forecast probability \ny',fontsize=11)
+        pl.legend(fontsize=7,loc='upper left')
+        pl.tight_layout()
+        #print('Upper:\nReliability = ',round(rel_u,4),' | Resolution = ',round(res_u,4),'\n(Reliability - Resolution) = ',round(rel_u - res_u,4))
+        pl.show()
+
+
         
         
