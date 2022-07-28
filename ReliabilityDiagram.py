@@ -169,9 +169,9 @@ class ReliabilityDiagram:
         # Elements for plot
         xd = yd = [0,1]
         q = self.ub - self.lb
-        om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
-        print(q,om)
-        q =om
+        #om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
+        #print(q,om)
+        #q =om ???? to be discussed
         clim_x = clim_y = [q,q]
         sk_line = [q/2,(1-q)/2+q]
         #
