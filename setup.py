@@ -6,7 +6,7 @@ HERE = pathlib.Path(__file__).parent
 VERSION = '0.0.1'
 PACKAGE_NAME = 'ReliabilityDiagram'
 AUTHOR = 'Naveen Goutham, Camille Le Coz'
-AUTHOR_EMAIL = 'naveen.goutham@outlook.com'
+AUTHOR_EMAIL = 'naveen.goutham@outlook.com, camille.lecoz@laposte.net'
 URL = 'https://github.com/clecoz/ReliabilityDiagram'
 
 LICENSE = 'Apache License 2.0'
