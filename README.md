@@ -120,8 +120,9 @@ data = rd.ReliabilityDiagram(obs,fcast,clima,0,1/3,closed_ends='both',nbins=10) 
 
 ```python
 c_table = data.contingency_table()    
-c_table
+print(c_table)
 ```
+Output:
 ```
     array([[   9., 2090.],
            [  13.,  376.],
@@ -136,17 +137,15 @@ c_table
 ```
 
 ```python
-data.forecast_attributes()
+rel, res = data.forecast_attributes()
+print(rel, res)
 ```
+Output:
 
     Reliability =  0.0004  | Resolution =  0.0165 
     (Reliability - Resolution) =  -0.0161
+    0.0003747137644693697 0.01645615776446937
     
-
-
-
-
-    (0.0003747137644693697, 0.01645615776446937)
 
 * Plot reliability diagram
 
@@ -157,34 +156,13 @@ xd = yd = [0,1]
 q = data.ub - data.lb
 clim_x = clim_y = [q,q]
 sk_line = [q/2,(1-q)/2+q]
-```
 
-
-```python
 # Calculate observed frequency and corresponding confidence interval
 data.observed_frequency_confidence()
-```
 
-
-
-
-    (array([0.00428776, 0.03341902, 0.16058394, 0.28151261, 0.4248927 ,
-            0.50520833, 0.73303167, 0.77727273, 0.91240876, 0.99418605]),
-     array([0.00149249, 0.0155587 , 0.11711165, 0.22437552, 0.36142041,
-            0.43448806, 0.67470823, 0.72229204, 0.87893551, 0.98910482]),
-     array([0.00708303, 0.05127935, 0.20405623, 0.33864969, 0.488365  ,
-            0.5759286 , 0.79135512, 0.83225341, 0.94588201, 0.99926727]))
-
-
-
-
-```python
 # Calculate weight of each forecast probability bins
 wti = np.sum(c_table,axis=1)/np.sum(c_table)            # number of forecasts yi / total number of forecasts
-```
 
-
-```python
 # Plot
 fig = pl.figure(figsize=(7,5))
 pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
