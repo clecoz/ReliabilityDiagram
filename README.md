@@ -105,6 +105,11 @@ Example - 1:
 In [1]: 
 Out[1]: 
 ```
+```python
+nobs = 5000   # number of events
+nclim = 30    # number of years considered in climatology
+nfc = 51      # ensemble size of the forecasts
+```
 
 Example - 2:
 ```sh
