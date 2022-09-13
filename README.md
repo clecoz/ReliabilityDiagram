@@ -134,7 +134,7 @@ c_table
            [ 250.,   24.],
            [ 855.,    5.]])
 
-array([])
+    array([0,0])
 
 ```python
 data.forecast_attributes()
