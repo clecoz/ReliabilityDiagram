@@ -123,9 +123,6 @@ c_table = data.contingency_table()
 c_table
 ```
 
-aa
-
-
     array([[   9., 2090.],
            [  13.,  376.],
            [  44.,  230.],
@@ -137,8 +134,7 @@ aa
            [ 250.,   24.],
            [ 855.,    5.]])
 
-
-
+   aa
 
 ```python
 data.forecast_attributes()
