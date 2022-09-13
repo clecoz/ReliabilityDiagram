@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: Naveen Goutham, Camille Le-Coz
+@authors: Naveen Goutham, Camille Le Coz
 """
 
 import numpy as np
@@ -161,7 +161,7 @@ class ReliabilityDiagram:
         om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
         o_bar = np.repeat(om,len(self.bins))
         res = np.nanmean(((oi - o_bar)**2)*wti) # resolution component of the Brier score
-        print('Reliability = ',round(rel,4),' | Resolution = ',round(res,4),'\n(Reliability - Resolution) = ',round(rel - res,4))
+        #print('Reliability = ',round(rel,4),' | Resolution = ',round(res,4),'\n(Reliability - Resolution) = ',round(rel - res,4))
         return rel, res
         
 #    def plot_diagram(self):
