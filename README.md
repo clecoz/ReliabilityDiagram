@@ -16,8 +16,6 @@ _References_:
 pip install PackageName
 ```
 
-aa 
-
 ## _Parameters:_
 
 **observation**: numpy.ndarray
@@ -106,9 +104,9 @@ import matplotlib.pyplot as pl
 ### Example - 1:
 * Create case data
 ```python
-nobs = 5000   # number of events
-nclim = 30    # number of years considered in climatology
-nfc = 51      # ensemble size of the forecasts
+>>> nobs = 5000   # number of events
+>>> nclim = 30    # number of years considered in climatology
+>>> nfc = 51      # ensemble size of the forecasts
 
 clima = np.random.normal(loc=0,scale=10,size=(nobs,nclim))   # climatology (follows the same normal distribution for all events)
 obs = np.random.normal(loc=0,scale=10,size=(nobs))           # observations drawn from the same distribution as climatology
@@ -125,7 +123,7 @@ c_table = data.contingency_table()
 c_table
 ```
 
-
+aa
 
 
     array([[   9., 2090.],
