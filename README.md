@@ -122,7 +122,7 @@ data = rd.ReliabilityDiagram(obs,fcast,clima,0,1/3,closed_ends='both',nbins=10) 
 c_table = data.contingency_table()    
 c_table
 ```
-
+```
     array([[   9., 2090.],
            [  13.,  376.],
            [  44.,  230.],
@@ -133,8 +133,7 @@ c_table
            [ 171.,   49.],
            [ 250.,   24.],
            [ 855.,    5.]])
-
-    array([0,0])
+```
 
 ```python
 data.forecast_attributes()
