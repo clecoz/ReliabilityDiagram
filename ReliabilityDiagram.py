@@ -6,7 +6,6 @@
 
 import numpy as np
 import statsmodels.api as sm
-import matplotlib.pyplot as pl
 
 class ReliabilityDiagram:
     def __init__(self,observation,forecast,climatology,event_lbound,event_ubound,closed_ends='both',nbins=5,weights=None):
@@ -141,11 +140,17 @@ class ReliabilityDiagram:
         c_table[:,1] = np.bincount(ind[~event_obs],minlength=len(self.bins))
         return c_table
     
-    # def confidence_intervals(self):
+    def observed_frequency_confidence(self):
+        # Return the observed relative frequency and the corresponding confidence intervals
         self.__check_conformity()
+        c_table = self.contingency_table()
+        #
+        self.oi = c_table[:,0] / (c_table[:,0] + c_table[:,1])  # observed frequency
+        self.ci_low, self.ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
+        return self.oi, self.ci_low, self.ci_upp
         
     def forecast_attributes(self):
-        #Compute the reliability and resolution components of the Brier score from the contingency table
+        # Compute the reliability and resolution components of the Brier score from the contingency table
         self.__check_conformity()
         c_table = self.contingency_table()
         #
@@ -159,39 +164,39 @@ class ReliabilityDiagram:
         print('Reliability = ',round(rel,4),' | Resolution = ',round(res,4),'\n(Reliability - Resolution) = ',round(rel - res,4))
         return rel, res
         
-    def plot_diagram(self):
-        # Plot reliability diagram
-        self.__check_conformity()
-        c_table = self.contingency_table()
-        #
-        p = c_table[:,0] / (c_table[:,0] + c_table[:,1])    # observed frequency
-        ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
-        # Elements for plot
-        xd = yd = [0,1]
-        q = self.ub - self.lb
-        #om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
-        #print(q,om)
-        #q =om ???? to be discussed
-        clim_x = clim_y = [q,q]
-        sk_line = [q/2,(1-q)/2+q]
-        #
-        fig = pl.figure(figsize=(7,5))
-        pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
-        pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
-        pl.plot(clim_x,yd,color='black',linestyle=':',linewidth=0.5)
-        pl.plot(xd,sk_line,color='black',linestyle='--',linewidth=0.5)
-        pl.fill_between(xd,xd,sk_line,facecolor='grey',alpha=0.2)
-        pl.fill_betweenx(yd,yd,clim_x,facecolor='grey',alpha=0.2)
-        pl.scatter(self.bins,p,s=np.sum(c_table,axis=1)/np.sum(c_table)*10000,color='deepskyblue',marker='o',alpha=0.5,edgecolors='none')
-        pl.plot(self.bins,p,color='deepskyblue',linestyle='-',linewidth=0.8,label='upper tercile')
-        pl.errorbar(self.bins,p,yerr=[p - ci_low,ci_upp - p],ecolor='deepskyblue',elinewidth=0.8,alpha=0.5)
-        pl.ylim(0.0,1.0)
-        pl.xlim(0.0,1.0)
-        pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
-        pl.xlabel('Forecast probability \ny',fontsize=11)
-        #pl.legend(fontsize=7,loc='upper left')
-        pl.tight_layout()
-        pl.show()
+#    def plot_diagram(self):
+#        # Plot reliability diagram
+#        self.__check_conformity()
+#        c_table = self.contingency_table()
+#        #
+#        p = c_table[:,0] / (c_table[:,0] + c_table[:,1])    # observed frequency
+#        ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
+#        # Elements for plot
+#        xd = yd = [0,1]
+#        q = self.ub - self.lb
+#        #om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
+#        #print(q,om)
+#        #q =om ???? to be discussed
+#        clim_x = clim_y = [q,q]
+#        sk_line = [q/2,(1-q)/2+q]
+#        #
+#        fig = pl.figure(figsize=(7,5))
+#        pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
+#        pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
+#        pl.plot(clim_x,yd,color='black',linestyle=':',linewidth=0.5)
+#        pl.plot(xd,sk_line,color='black',linestyle='--',linewidth=0.5)
+#        pl.fill_between(xd,xd,sk_line,facecolor='grey',alpha=0.2)
+#        pl.fill_betweenx(yd,yd,clim_x,facecolor='grey',alpha=0.2)
+#        pl.scatter(self.bins,p,s=np.sum(c_table,axis=1)/np.sum(c_table)*10000,color='deepskyblue',marker='o',alpha=0.5,edgecolors='none')
+#        pl.plot(self.bins,p,color='deepskyblue',linestyle='-',linewidth=0.8,label='upper tercile')
+#        pl.errorbar(self.bins,p,yerr=[p - ci_low,ci_upp - p],ecolor='deepskyblue',elinewidth=0.8,alpha=0.5)
+#        pl.ylim(0.0,1.0)
+#        pl.xlim(0.0,1.0)
+#        pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
+#        pl.xlabel('Forecast probability \ny',fontsize=11)
+#        #pl.legend(fontsize=7,loc='upper left')
+#        pl.tight_layout()
+#        pl.show()
 
 
         
