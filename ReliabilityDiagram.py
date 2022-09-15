@@ -148,7 +148,7 @@ class ReliabilityDiagram:
         self.oi = c_table[:,0] / (c_table[:,0] + c_table[:,1])  # observed frequency
         self.ci_low, self.ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
         return self.oi, self.ci_low, self.ci_upp
-        
+
     def forecast_attributes(self):
         # Compute the reliability and resolution components of the Brier score from the contingency table
         self.__check_conformity()
@@ -157,47 +157,14 @@ class ReliabilityDiagram:
         yi = self.bins  # forecast probability
         oi = c_table[:,0] / (c_table[:,0] + c_table[:,1])    # observed frequency
         wti = np.sum(c_table,axis=1)/np.sum(c_table)    # weights=number of forecasts yi / total number of forecasts
-        rel = np.nanmean(((yi - oi)**2)*wti)    # reliability component of the Brier score
         om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
         o_bar = np.repeat(om,len(self.bins))
-        res = np.nanmean(((oi - o_bar)**2)*wti) # resolution component of the Brier score
-        #print('Reliability = ',round(rel,4),' | Resolution = ',round(res,4),'\n(Reliability - Resolution) = ',round(rel - res,4))
-        return rel, res
-        
-#    def plot_diagram(self):
-#        # Plot reliability diagram
-#        self.__check_conformity()
-#        c_table = self.contingency_table()
-#        #
-#        p = c_table[:,0] / (c_table[:,0] + c_table[:,1])    # observed frequency
-#        ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
-#        # Elements for plot
-#        xd = yd = [0,1]
-#        q = self.ub - self.lb
-#        #om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
-#        #print(q,om)
-#        #q =om ???? to be discussed
-#        clim_x = clim_y = [q,q]
-#        sk_line = [q/2,(1-q)/2+q]
-#        #
-#        fig = pl.figure(figsize=(7,5))
-#        pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
-#        pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
-#        pl.plot(clim_x,yd,color='black',linestyle=':',linewidth=0.5)
-#        pl.plot(xd,sk_line,color='black',linestyle='--',linewidth=0.5)
-#        pl.fill_between(xd,xd,sk_line,facecolor='grey',alpha=0.2)
-#        pl.fill_betweenx(yd,yd,clim_x,facecolor='grey',alpha=0.2)
-#        pl.scatter(self.bins,p,s=np.sum(c_table,axis=1)/np.sum(c_table)*10000,color='deepskyblue',marker='o',alpha=0.5,edgecolors='none')
-#        pl.plot(self.bins,p,color='deepskyblue',linestyle='-',linewidth=0.8,label='upper tercile')
-#        pl.errorbar(self.bins,p,yerr=[p - ci_low,ci_upp - p],ecolor='deepskyblue',elinewidth=0.8,alpha=0.5)
-#        pl.ylim(0.0,1.0)
-#        pl.xlim(0.0,1.0)
-#        pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
-#        pl.xlabel('Forecast probability \ny',fontsize=11)
-#        #pl.legend(fontsize=7,loc='upper left')
-#        pl.tight_layout()
-#        pl.show()
+        #
+        rel = np.nansum(((yi - oi)**2)*wti)    # reliability component of the Brier score
+        res = np.nansum(((oi - o_bar)**2)*wti) # resolution component of the Brier score
+        bs = rel - res + om*(1-om)              # brier score
+        print('Brier score = ',round(bs,4),' | Reliability = ',round(rel,4),' | Resolution = ',round(res,4))
+        return bs, rel, res
 
 
-        
-        
+
