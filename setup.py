@@ -10,11 +10,11 @@ AUTHOR_EMAIL = 'naveen.goutham@outlook.com, camille.lecoz@laposte.net'
 URL = 'https://github.com/clecoz/ReliabilityDiagram'
 
 LICENSE = 'Apache License 2.0'
-DESCRIPTION = 'A package to compute contingency table, forecast attributes, and reliability diagram for forecasts.'
+DESCRIPTION = 'A package to compute contingency table, forecast attributes, #and reliability diagram for forecasts.'
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ['numpy','statsmodels','matplotlib']
+INSTALL_REQUIRES = ['numpy','statsmodels']
 
 setup(name=PACKAGE_NAME,
       version=VERSION,
@@ -26,6 +26,6 @@ setup(name=PACKAGE_NAME,
       author_email=AUTHOR_EMAIL,
       url=URL,
       install_requires=INSTALL_REQUIRES,
-      keywords=['reliability table','contingency table','reliability diagram','attributes diagram','reliability','resolution','forecast attributes','ensemble forecast','forecast','climatology','python','matplotlib'],
+      keywords=['reliability table','contingency table','reliability diagram','attributes diagram','reliability','resolution','forecast attributes','brier score','ensemble forecast','forecast','climatology','python'],
       packages=find_packages()
       )
