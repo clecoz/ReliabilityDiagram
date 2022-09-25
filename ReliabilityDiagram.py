@@ -198,6 +198,10 @@ class ReliabilityDiagram:
         '''
         This method computes the brier score, the reliability and the resolution attributes.
         
+        NOTE:
+        Perfect forecasts will have a brier score of "zero".
+        The smaller the reliability component, and the larger the resolution component, the more accurate are the forecasts.
+        
         Returns:
         Brier score, Reliability, Resolution
         '''
