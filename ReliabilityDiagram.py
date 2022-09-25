@@ -27,13 +27,13 @@ class ReliabilityDiagram:
             The lower bound for the event considered. 
             Example 1: If the event considered is lower tercile, then event_lbound value is 0. 
             Example 2: If the event considered is upper tercile, then event_lbound value is 2/3. 
-            NOTE: The value should be in the range of 0 to 1.
+            NOTE: The value should be in the range of 0 to 1. This value should be lesser than the value of event_ubound.
             
         event_ubound : int or float
             The upper bound for the event considered.
             Example 1: If the event considered is lower tercile, then event_ubound value is 1/3.
             Example 2: If the event considered is upper tercile, then event_ubound value is 1. 
-            NOTE: The value should be in the range of 0 to 1.
+            NOTE: The value should be in the range of 0 to 1. This value should be greater than the value of event_lbound.
             
         closed_ends : str, optional
             The bounds (upper and/or lower) to include in the event formulation. Options: 'left', 'right', 'none', 'both'. 
@@ -56,7 +56,7 @@ class ReliabilityDiagram:
         #original attributes
         self.ob = observation
         self.fc = forecast
-        self.cl = np.sort(climatology,axis=1)
+        self.cl = climatology.sort(axis=1)
         self.lb = event_lbound
         self.ub = event_ubound
         self.ends = closed_ends
@@ -69,8 +69,19 @@ class ReliabilityDiagram:
         self.mem_cl = self.cl.shape[1]
             
     def __check_conformity(self):
+        '''
+        This function checks if every parameter adheres to the basic requirements of the package. This is a private function."
+        '''
         if (self.ob.ndim != 1) and (self.fc.ndim and self.cl.ndim != 2) and (self.fc.shape[0] and self.cl.shape[0] != len(self.ob)) and (not (0 <= self.lb and self.ub <= 1)):
             raise ValueError('Please make sure that the input parameters follow the program requirements!')
+            exit
+        
+        if self.lb >= self.ub:
+            raise ValueError("Please make sure that event_lbound is lesser than event_ubound.")
+            exit
+                             
+        if len(self.bins) > self.nsim:
+            raise ValueError("The number of bins should be lesser than the dimension of observation.")
             exit
       
         list_ends = ["left","right","none","both"]
@@ -84,7 +95,10 @@ class ReliabilityDiagram:
         return 
     
     def __get_observed_event(self,l,u):
-        #add condition for boundaries. i.e., if lbound = 0, then ob <= ubound, and if ubound = 1, then ob >= lbound
+        '''
+        This function checks if the observation has occurred within the given bounds, 
+        and returns 1 if the observation has occurred or 0 otherwise.
+        '''
         if self.ends == "both":
             return np.logical_and(np.less_equal(l,self.ob), np.less_equal(self.ob,u))
         elif self.ends == "none":
@@ -95,6 +109,10 @@ class ReliabilityDiagram:
             return np.logical_and(np.less(l,self.ob), np.less_equal(self.ob,u))
     
     def __get_forecast_probability(self,l,u):
+        '''
+        This function computes and returns the forecast probability for the defined event by counting the members which are
+        within the event definition.
+        '''
         if self.weights is None:
             if self.ends == "both":
                 return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
@@ -116,6 +134,14 @@ class ReliabilityDiagram:
                 return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
             
     def contingency_table(self):
+        '''
+        This function computes and returns the contingency table for the defined event.
+        The returned table has "nbins" rows and two columns.  
+        
+        Returns:
+        Contingency table: numpy.ndarray of shape (nbins,2).
+            NOTE: The first column corresponds to the "yes" event, whereas the second column corresponds to the "no" event.
+        '''
         # Build contingency table
         self.__check_conformity()
         event_names = ['yes', 'no']
@@ -140,31 +166,51 @@ class ReliabilityDiagram:
         c_table[:,1] = np.bincount(ind[~event_obs],minlength=len(self.bins))
         return c_table
     
-    def observed_frequency_confidence(self):
-        # Return the observed relative frequency and the corresponding confidence intervals
+    def observed_frequency(self):
+        '''
+        This function returns the observed relative frequency. This is required for plotting the reliability diagram.
+        
+        Returns:
+        Observed relative frequency
+        '''
+        # Return the observed relative frequency
         self.__check_conformity()
         c_table = self.contingency_table()
-        #
-        self.oi = c_table[:,0] / (c_table[:,0] + c_table[:,1])  # observed frequency
-        self.ci_low, self.ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1])) # confidence interval
-        return self.oi, self.ci_low, self.ci_upp
+        # observed frequency
+        return c_table[:,0] / (c_table[:,0] + c_table[:,1])
 
+    def confidence_intervals(self):
+        '''
+        This function returns the lower and the upper confidence intervals, respectively, corresponding to the observed frequency.
+        This is required for plotting the reliability diagram.
+        
+        Returns:
+        lower confidence intervals, upper confidence intervals
+        '''
+        # Return the confidence intervals
+        self.__check_conformity()
+        c_table = self.contingency_table()
+        # confidence intervals
+        ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1]))
+        return ci_low, ci_upp
+    
     def forecast_attributes(self):
-        # Compute the reliability and resolution components of the Brier score from the contingency table
+        '''
+        This method computes the brier score, the reliability and the resolution attributes.
+        
+        Returns:
+        Brier score, Reliability, Resolution
+        '''
         self.__check_conformity()
         c_table = self.contingency_table()
         #
         yi = self.bins  # forecast probability
-        oi = c_table[:,0] / (c_table[:,0] + c_table[:,1])    # observed frequency
+        oi = self.observed_frequency    # observed frequency
         wti = np.sum(c_table,axis=1)/np.sum(c_table)    # weights=number of forecasts yi / total number of forecasts
         om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
         o_bar = np.repeat(om,len(self.bins))
         #
         rel = np.nansum(((yi - oi)**2)*wti)    # reliability component of the Brier score
         res = np.nansum(((oi - o_bar)**2)*wti) # resolution component of the Brier score
-        bs = rel - res + om*(1-om)              # brier score
-        print('Brier score = ',round(bs,4),' | Reliability = ',round(rel,4),' | Resolution = ',round(res,4))
+        bs = rel - res + om*(1-om)             # brier score
         return bs, rel, res
-
-
-
