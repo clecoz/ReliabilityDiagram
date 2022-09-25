@@ -43,7 +43,7 @@ class ReliabilityDiagram:
             
         nbins : int, optional
             Number of bins to stratify the forecasts into. The default is 5.
-            NOTE: The bins are of equal width.
+            NOTE: The bins are of equal width. The number of bins should be lesser than the dimension of observation.
             
         weights : numpy.ndarray, optional
             The weights for the forecast data. It should have the same shape as the forecast data.
