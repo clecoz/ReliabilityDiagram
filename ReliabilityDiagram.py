@@ -56,7 +56,7 @@ class ReliabilityDiagram:
         #original attributes
         self.ob = observation
         self.fc = forecast
-        self.cl = climatology.sort(axis=1)
+        self.cl =np.sort(climatology,axis=1)
         self.lb = event_lbound
         self.ub = event_ubound
         self.ends = closed_ends
@@ -72,8 +72,12 @@ class ReliabilityDiagram:
         '''
         This function checks if every parameter adheres to the basic requirements of the package. This is a private function."
         '''
-        if (self.ob.ndim != 1) and (self.fc.ndim and self.cl.ndim != 2) and (self.fc.shape[0] and self.cl.shape[0] != len(self.ob)) and (not (0 <= self.lb and self.ub <= 1)):
+        if (self.ob.ndim != 1) or (self.fc.ndim and self.cl.ndim != 2) or (self.fc.shape[0] and self.cl.shape[0] != len(self.ob)) or (not (0 <= self.lb and self.ub <= 1)):
             raise ValueError('Please make sure that the input parameters follow the program requirements!')
+            exit
+
+        if np.isnan(self.ob).any() or np.isnan(self.fc).any() or np.isnan(self.cl).any() or np.isnan(self.lb) or np.isnan(self.ub):
+            raise ValueError('The program does not accept NaN values.')
             exit
         
         if self.lb >= self.ub:
@@ -114,24 +118,18 @@ class ReliabilityDiagram:
         within the event definition.
         '''
         if self.weights is None:
-            if self.ends == "both":
-                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
-            elif self.ends == "none":
-                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
-            elif self.ends == "left":
-                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
-            elif self.ends == "right":
-                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T)), axis=1)/self.mem_fc
+            weights = np.ones(self.fc.shape)/self.mem_fc
         else:
             weights = (self.weights.T/np.sum(self.weights, axis=1)).T
-            if self.ends == "both":
-                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
-            elif self.ends == "none":
-                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
-            elif self.ends == "left":
-                return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
-            elif self.ends == "right":
-                return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)/self.mem_fc
+
+        if self.ends == "both":
+            return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)
+        elif self.ends == "none":
+            return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)
+        elif self.ends == "left":
+            return np.sum(((self.fc >= np.tile(l,(self.mem_fc,1)).T)*(self.fc < np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)
+        elif self.ends == "right":
+            return np.sum(((self.fc > np.tile(l,(self.mem_fc,1)).T)*(self.fc <= np.tile(u,(self.mem_fc,1)).T))*weights, axis=1)
             
     def contingency_table(self):
         '''
@@ -209,7 +207,7 @@ class ReliabilityDiagram:
         c_table = self.contingency_table()
         #
         yi = self.bins  # forecast probability
-        oi = self.observed_frequency    # observed frequency
+        oi = self.observed_frequency()    # observed frequency
         wti = np.sum(c_table,axis=1)/np.sum(c_table)    # weights=number of forecasts yi / total number of forecasts
         om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
         o_bar = np.repeat(om,len(self.bins))
