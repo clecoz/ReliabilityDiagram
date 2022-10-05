@@ -49,6 +49,22 @@ def test_dimension_mismatch():
     np.testing.assert_raises(ValueError, data.contingency_table)
 
 
+def test_nbins():
+    # test ReliabilityDiagram for dimension mismatch
+    nobs = 100   # number of events
+    nclim = 30    # number of years considered in climatology
+    nfc = 50      # ensemble size of the forecasts
+
+    clima = np.random.rand(nobs,nclim)
+    obs = np.random.rand(nobs)
+    fcast = np.random.rand(nobs,nfc)
+
+    data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4,nbins=5.5)
+    np.testing.assert_raises(ValueError, data.contingency_table)
+
+    data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4,nbins=10)
+    np.testing.assert_array_equal(len(data.bins),10)
+
 
 def test_bounds_validity():
     # test validity of the bounds
@@ -71,10 +87,11 @@ def test_bounds_validity():
     data = rd.ReliabilityDiagram(obs, fcast, clima, 1/4, 0)
     np.testing.assert_raises(ValueError, data.contingency_table)
 
-    # Lower bound > upper bound
+    # Special case: lower bound = 0 and upper bound = 1
     data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1)
-    print(data.contingency_table())
-    #np.testing.assert_raises(ValueError, data.contingency_table)
+    expected_table = np.zeros((5,2))
+    expected_table[-1,0] = nobs
+    np.testing.assert_array_equal(data.contingency_table(),expected_table)
 
 
 def test_for_NaN():
@@ -105,7 +122,6 @@ def test_for_NaN():
     np.testing.assert_raises(ValueError, data.contingency_table)
 
 
-
 def test_weights():
     # test weights
     nobs = 100   # number of events
@@ -129,6 +145,7 @@ def test_weights():
     data_with_weights = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4, weights=weights)
     np.testing.assert_array_equal(data.contingency_table(),data_with_weights.contingency_table())
 
+
 def test_closed_ends():
     # test closed_ends option
     nobs = 100   # number of events
@@ -144,7 +161,6 @@ def test_closed_ends():
     obs_l = l
     fcast_u = np.tile(u,(nfc,1)).T
     fcast_l = np.tile(l,(nfc,1)).T
-
 
     # Check upper bound in observations
     data = rd.ReliabilityDiagram(obs_u, fcast, clima, 0, 1/4,closed_ends="both")
@@ -198,6 +214,7 @@ def test_closed_ends():
     data = rd.ReliabilityDiagram(obs, fcast_l, clima, 3/4, 1,closed_ends="right")
     np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),np.array([nobs,0,0,0,0]))
 
+
 def test_for_perfect_reliability():
     # test functions for a case with perfect reliability
     nobs = 25   # number of events
@@ -230,6 +247,7 @@ def test_for_perfect_reliability():
     np.testing.assert_allclose(data.forecast_attributes()[1],0,atol=1e-16)
     np.testing.assert_allclose(data.forecast_attributes()[0],np.mean((np.sum(fcast,axis=1)/nfc-obs)**2))
 
+
 def test_for_no_resolution():
     # test functions for a case with no resolution
     nobs = 25   # number of events
@@ -260,7 +278,7 @@ def test_for_no_resolution():
     np.testing.assert_allclose(data.forecast_attributes()[0],np.mean((np.sum(fcast,axis=1)/5-obs)**2))
 
 
-def test_deterministic_forecast(): #### Ongoing
+def test_deterministic_forecast():
     # test for case with deterministic forecasts
     nobs = 100  # number of events
     nclim = 30  # number of years considered in climatology
@@ -270,9 +288,8 @@ def test_deterministic_forecast(): #### Ongoing
     fcast = np.random.rand(nobs,nfc)
     obs = np.random.rand(nobs)
 
-
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1,closed_ends="both",nbins=5)
-    print(data.contingency_table())
+    data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1)
+    np.testing.assert_raises(ValueError, data.contingency_table)
 
 
 
@@ -280,11 +297,12 @@ def test_deterministic_forecast(): #### Ongoing
 
 
 #####################################################################################
-#test_dimension_mismatch()
-#test_bounds_validity()
-#test_for_NaN()
-#test_weights()
-#test_closed_ends()
-#test_for_perfect_reliability()
-#test_for_no_resolution()
+test_dimension_mismatch()
+test_bounds_validity()
+test_nbins()
+test_for_NaN()
+test_weights()
+test_closed_ends()
+test_for_perfect_reliability()
+test_for_no_resolution()
 test_deterministic_forecast()
