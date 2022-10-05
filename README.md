@@ -133,26 +133,26 @@ print(c_table)
 ```
 ###### Output
 
-    array([[  77., 2811.],
-           [  86.,  292.],
-           [  72.,  184.],
-           [  69.,  118.],
-           [  79.,   79.],
-           [  97.,   60.],
-           [ 105.,   47.],
-           [ 111.,   33.],
-           [ 151.,   20.],
-           [ 494.,   15.]])
+    array([[  69., 2846.],
+           [  56.,  288.],
+           [  83.,  174.],
+           [  76.,  112.],
+           [  89.,   85.],
+           [  92.,   64.],
+           [ 108.,   44.],
+           [ 101.,   40.],
+           [ 137.,   27.],
+           [ 484.,   25.]])
 
 ###### Input
 ```python
-rel, res = data.forecast_attributes()
-print(rel, res)
+bs, rel, res = data.forecast_attributes()
+print(bs, rel, res)
 ```
 
 ###### Output
 
-    0.00040451128009458606 0.011559587280094586
+    0.08378799999999999 0.003151037068348895 0.11128203706834891
     
 * Plot reliability diagram
 
@@ -171,6 +171,7 @@ clim_x = clim_y = [q,q]
 sk_line = [q/2,(1-q)/2+q]
 
 # Plot
+# (in this example, the lower quartile is underforecasted)
 fig = pl.figure(figsize=(7,5))
 pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
 pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
@@ -185,7 +186,7 @@ pl.ylim(0.0,1.0)
 pl.xlim(0.0,1.0)
 pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
 pl.xlabel('Forecast probability \ny',fontsize=11)
-pl.title("Lower quartile (underforecasting)")
+pl.title("Lower quartile ")
 pl.tight_layout()
 ```
 
@@ -230,6 +231,7 @@ clim_x = clim_y = [q,q]
 sk_line = [q/2,(1-q)/2+q]
 
 # Plot
+# (in this example, the model is inderconfident)
 fig = pl.figure(figsize=(7,5))
 pl.plot(xd,yd,color='black',linestyle=':',linewidth=0.5)
 pl.plot(xd,clim_y,color='black',linestyle=':',linewidth=0.5)
@@ -238,19 +240,18 @@ pl.plot(xd,sk_line,color='black',linestyle='--',linewidth=0.5)
 pl.fill_between(xd,xd,sk_line,facecolor='grey',alpha=0.2)
 pl.fill_betweenx(yd,yd,clim_x,facecolor='grey',alpha=0.2)
 pl.scatter(data_lt.bins,oi_lt,s=wti_lt*10000,color='deepskyblue',marker='o',alpha=0.5,edgecolors='none')
-pl.plot(data_lt.bins,oi_lt,color='deepskyblue',linestyle='-',linewidth=0.8, label="lower quartile")
+pl.plot(data_lt.bins,oi_lt,color='deepskyblue',linestyle='-',linewidth=0.8, label="lower tercile")
 pl.errorbar(data_lt.bins,oi_lt,yerr=[oi_lt - ci_low_lt, ci_upp_lt - oi_lt],ecolor='deepskyblue',elinewidth=0.8,alpha=0.5)
 pl.scatter(data_ut.bins,oi_ut,s=wti_ut*10000,color='orange',marker='o',alpha=0.5,edgecolors='none')
-pl.plot(data_ut.bins,oi_ut,color='orange',linestyle='-',linewidth=0.8, label="upper quartile")
+pl.plot(data_ut.bins,oi_ut,color='orange',linestyle='-',linewidth=0.8, label="upper tercile")
 pl.errorbar(data_ut.bins,oi_ut,yerr=[oi_ut - ci_low_ut, ci_upp_ut - oi_ut],ecolor='orange',elinewidth=0.8,alpha=0.5)
 pl.ylim(0.0,1.0)
 pl.xlim(0.0,1.0)
 pl.legend()
 pl.ylabel('Observed frequency \np(o|y)',fontsize=11)
 pl.xlabel('Forecast probability \ny',fontsize=11)
-pl.title("(underconfident model)")
+pl.title("Terciles")
 pl.tight_layout()
-pl.show()
 ```
 
 ###### Output
