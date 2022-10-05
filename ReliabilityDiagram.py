@@ -54,6 +54,49 @@ class ReliabilityDiagram:
         None.
 
         '''
+        # check conformity
+        if (observation.ndim != 1) or (forecast.ndim!= 2) or (climatology.ndim != 2):
+            raise ValueError('Please make sure that observation, forecast and climatology have the required shapes!')
+            exit
+
+        if (forecast.shape[0]!= len(observation)) or (climatology.shape[0] != len(observation)):
+            raise ValueError('observation, climatology and observation must have the same number of events (i.e. observation.shape[0]=forecast.shape[0]=climatology.shape[0])')
+            exit
+
+        if forecast.shape[1] == 1:
+            raise ValueError('The forecast is deterministic. Please replace the deterministic forecast by a probabilistic one (i.e. with ensemble size > 1).')
+            exit
+
+        if np.isnan(observation).any() or np.isnan(forecast).any() or np.isnan(climatology).any() or np.isnan(event_lbound) or np.isnan(event_ubound):
+            raise ValueError('The class does not accept NaN values.')
+            exit
+
+        if not (0 <= event_lbound and event_ubound <= 1):
+            raise ValueError('Invalid bounds, please make sure that the input parameters follow the program requirements!')
+            exit
+
+        if event_lbound >= event_ubound:
+            raise ValueError("Please make sure that event_lbound is lesser than event_ubound.")
+            exit
+
+        if not isinstance(nbins, int):
+            raise ValueError("nbins should be an interger.")
+            exit
+
+        if nbins > len(observation):
+            raise ValueError("The number of bins should be lesser than the number of events.")
+            exit
+
+        list_ends = ["left","right","none","both"]
+        if closed_ends not in list_ends:
+            raise ValueError("Please give a valid entry for closed_end.")
+            exit
+
+        if (weights is not None) and (weights.shape != forecast.shape):
+            raise ValueError("forecast and weights must have the same shape.")
+            exit
+
+
         #original attributes
         self.ob = observation
         self.fc = forecast
@@ -61,7 +104,6 @@ class ReliabilityDiagram:
         self.lb = event_lbound
         self.ub = event_ubound
         self.ends = closed_ends
-        self.nbins = nbins
         self.bins = np.arange(0,1,1/nbins)
         self.weights = weights
         
@@ -69,52 +111,6 @@ class ReliabilityDiagram:
         self.nsim = len(self.ob)
         self.mem_fc = self.fc.shape[1]
         self.mem_cl = self.cl.shape[1]
-            
-    def __check_conformity(self):
-        '''
-        This function checks if every parameter adheres to the basic requirements of the package. This is a private function."
-        '''
-        if (self.ob.ndim != 1) or (self.fc.ndim!= 2) or (self.cl.ndim != 2):
-            raise ValueError('Please make sure that observation, forecast and climatology have the required shapes!')
-            exit
-
-        if (self.fc.shape[0]!= len(self.ob)) or (self.cl.shape[0] != len(self.ob)):
-            raise ValueError('observation, climatology and observation must have the same number of events (i.e. observation.shape[0]=forecast.shape[0]=climatology.shape[0])')
-            exit
-
-        if not (0 <= self.lb and self.ub <= 1):
-            raise ValueError('Invalid bounds, please make sure that the input parameters follow the program requirements!')
-            exit
-
-        if self.mem_fc == 1:
-            raise ValueError('The forecast is deterministic. Please replace the deterministic forecast by a probabilistic one (i.e. with ensemble size > 1).')
-            exit
-
-        if np.isnan(self.ob).any() or np.isnan(self.fc).any() or np.isnan(self.cl).any() or np.isnan(self.lb) or np.isnan(self.ub):
-            raise ValueError('The program does not accept NaN values.')
-            exit
-        
-        if self.lb >= self.ub:
-            raise ValueError("Please make sure that event_lbound is lesser than event_ubound.")
-            exit
-
-        if (self.nbins is not None) and (not isinstance(self.nbins, int)):
-            raise ValueError("nbins should be an interger.")
-            exit
-                             
-        if len(self.bins) > self.nsim:
-            raise ValueError("The number of bins should be lesser than the number of events.")
-            exit
-      
-        list_ends = ["left","right","none","both"]
-        if self.ends not in list_ends:
-            raise ValueError("Please give a valid entry for closed_end.")
-            exit    
-            
-        if self.weights is not None and self.weights.shape != self.fc.shape:
-            raise ValueError("forecast and weights must have the same shape.")
-            exit
-        return 
     
     def __get_observed_event(self,l,u):
         '''
@@ -159,7 +155,6 @@ class ReliabilityDiagram:
             NOTE: The first column corresponds to the "yes" event, whereas the second column corresponds to the "no" event.
         '''
         # Build contingency table
-        self.__check_conformity()
         event_names = ['yes', 'no']
         #getting boundaries of the event from climatology
         l, u = np.percentile(self.cl,[100*self.lb,100*self.ub],axis=1)
@@ -190,7 +185,6 @@ class ReliabilityDiagram:
         Observed relative frequency
         '''
         # Return the observed relative frequency
-        self.__check_conformity()
         c_table = self.contingency_table()
         # observed frequency
         return c_table[:,0] / (c_table[:,0] + c_table[:,1])
@@ -204,7 +198,6 @@ class ReliabilityDiagram:
         lower confidence intervals, upper confidence intervals
         '''
         # Return the confidence intervals
-        self.__check_conformity()
         c_table = self.contingency_table()
         # confidence intervals
         ci_low, ci_upp = sm.stats.proportion_confint(c_table[:,0],(c_table[:,0] + c_table[:,1]))
@@ -221,7 +214,6 @@ class ReliabilityDiagram:
         Returns:
         Brier score, Reliability, Resolution
         '''
-        self.__check_conformity()
         c_table = self.contingency_table()
         #
         yi = self.bins  # forecast probability

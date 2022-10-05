@@ -20,37 +20,26 @@ def test_dimension_mismatch():
     fcast1 = np.random.rand(nobs+2,nfc)
     clima1 = np.random.rand(nobs+2,nfc)
 
-    data = rd.ReliabilityDiagram(obs1, fcast, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-    data = rd.ReliabilityDiagram(obs, fcast1, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-    data = rd.ReliabilityDiagram(obs, fcast, clima1, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs1, fcast, clima, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast1, clima, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima1, 0, 1/4)
 
     # Shape specification
     obs2 = np.random.rand(nobs,2)
     fcast2  = np.random.rand(nobs,nfc,2)
     clima2 = np.random.rand(nobs,nclim,1)
 
-    data = rd.ReliabilityDiagram(obs2, fcast, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-    data = rd.ReliabilityDiagram(obs, fcast2, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-    data = rd.ReliabilityDiagram(obs, fcast, clima2, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs2, fcast, clima, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast2, clima, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima2, 0, 1/4)
 
     # Weights shape
     weights = np.random.rand(nobs,nfc+1)
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4, weights=weights)
-    np.testing.assert_raises(ValueError, data.contingency_table)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, 0, 1/4, weights=weights)
 
 
 def test_nbins():
-    # test ReliabilityDiagram for dimension mismatch
+    # test number of bins
     nobs = 100   # number of events
     nclim = 30    # number of years considered in climatology
     nfc = 50      # ensemble size of the forecasts
@@ -59,9 +48,9 @@ def test_nbins():
     obs = np.random.rand(nobs)
     fcast = np.random.rand(nobs,nfc)
 
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4,nbins=5.5)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
+    # test nbins type
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, 0, 1/4,nbins=5.5)
+    #test shape bins
     data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4,nbins=10)
     np.testing.assert_array_equal(len(data.bins),10)
 
@@ -77,16 +66,10 @@ def test_bounds_validity():
     fcast = np.random.rand(nobs,nfc)
 
     # Bounds outside of [0,1]
-    data = rd.ReliabilityDiagram(obs, fcast, clima, -1/4, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 2)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, -1/4, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, 3/4, 2)
     # Lower bound > upper bound
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 1/4, 0)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, 1/4, 0)
     # Special case: lower bound = 0 and upper bound = 1
     data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1)
     expected_table = np.zeros((5,2))
@@ -112,14 +95,41 @@ def test_for_NaN():
     fcast1 = fcast.copy()
     fcast1[0] = np.nan
 
-    data = rd.ReliabilityDiagram(obs1, fcast, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
+    #
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs1, fcast, clima, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima1, 0, 1/4)
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast1, clima, 0, 1/4)
 
-    data = rd.ReliabilityDiagram(obs, fcast, clima1, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
 
-    data = rd.ReliabilityDiagram(obs, fcast1, clima, 0, 1/4)
-    np.testing.assert_raises(ValueError, data.contingency_table)
+def test_deterministic_forecast():
+    # test deterministic forecasts
+    nobs = 100  # number of events
+    nclim = 30  # number of years considered in climatology
+    nfc = 1    # ensemble size of the forecasts
+
+    clima = np.random.rand(nobs,nclim)
+    fcast = np.random.rand(nobs,nfc)
+    obs = np.random.rand(nobs)
+
+    np.testing.assert_raises(ValueError, rd.ReliabilityDiagram, obs, fcast, clima, 3/4, 1)
+
+
+def test_contingency_table():
+    # easy check of the contingency table
+    nobs = 100  # number of events
+    nclim = 30  # number of years considered in climatology
+    nfc = 50    # ensemble size of the forecasts
+    nbins = 5
+
+    clima = np.random.rand(nobs,nclim)
+    fcast = np.random.rand(nobs,nfc)
+    obs = np.random.rand(nobs)
+
+    data = rd.ReliabilityDiagram(obs, fcast, clima, 0, 1/4, nbins=nbins)
+    # test shape
+    np.testing.assert_array_equal(data.contingency_table().shape,np.array([nbins,2]))
+    # test sum to number of event
+    np.testing.assert_equal(np.sum(data.contingency_table()),nobs)
 
 
 def test_weights():
@@ -236,6 +246,7 @@ def test_for_perfect_reliability():
     obs[25:] = 1
 
     data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1,closed_ends="both",nbins=5)
+
     # Test contingency_table
     np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),5*np.ones(len(data.bins)))
     np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=0),np.array([np.sum(obs),nobs-np.sum(obs)]))
@@ -278,31 +289,15 @@ def test_for_no_resolution():
     np.testing.assert_allclose(data.forecast_attributes()[0],np.mean((np.sum(fcast,axis=1)/5-obs)**2))
 
 
-def test_deterministic_forecast():
-    # test for case with deterministic forecasts
-    nobs = 100  # number of events
-    nclim = 30  # number of years considered in climatology
-    nfc = 1    # ensemble size of the forecasts
-
-    clima = np.random.rand(nobs,nclim)
-    fcast = np.random.rand(nobs,nfc)
-    obs = np.random.rand(nobs)
-
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1)
-    np.testing.assert_raises(ValueError, data.contingency_table)
-
-
-
-
-
-
 #####################################################################################
+# Tests
 test_dimension_mismatch()
-test_bounds_validity()
 test_nbins()
+test_bounds_validity()
 test_for_NaN()
+test_deterministic_forecast()
+test_contingency_table()
 test_weights()
 test_closed_ends()
 test_for_perfect_reliability()
 test_for_no_resolution()
-test_deterministic_forecast()
