@@ -99,7 +99,7 @@ class ReliabilityDiagram:
         #original attributes
         self.ob = observation
         self.fc = forecast
-        self.cl =np.sort(climatology,axis=1)
+        self.cl = climatology.sort(axis=1)
         self.lb = event_lbound
         self.ub = event_ubound
         self.ends = closed_ends
