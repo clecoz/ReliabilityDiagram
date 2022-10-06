@@ -13,16 +13,14 @@ class ReliabilityDiagram:
         '''
         Parameters
         ----------
-        observation : numpy.ndarray
-            Timeseries of observation/truth (1D).
+        observation : numpy.ndarray, shape (nsim,)
+            Observation/truth for nsim events.
             
-        forecast : numpy.ndarray
-            Forecast array (2D) with first dimension equal to the dimension of observation,
-            and second dimension equal to the ensemble size.
+        forecast : numpy.ndarray, shape (nsim,mem_fc)
+            Ensemble forecasts with ensemble size mem_fc for the same nsim events.
             
-        climatology : numpy.ndarray
-            Climatological array (2D) with first dimension equal to the dimension of observation, 
-            and second dimension equal to the number of years considered in climatology.
+        climatology : numpy.ndarray, shape (nsim,mem_cl)
+            Climatology for the same nsim events with mem_cl the number of years considered.
 
         event_lbound : int or float
             The lower bound for the event considered. 
@@ -41,13 +39,14 @@ class ReliabilityDiagram:
             Example 1: If closed_ends = 'left', then the event becomes event_lbound <= event < event_ubound. 
             Example-2: If closed_ends = 'both', then the event becomes event_lbound <= event <= event_ubound.
             NOTE: The default value is 'both'. The value is case sensitive.
+            NOTE: This option is overwritten when event_lbound=0 or event_ubound=1 in order to include the forecast values that are outside the bounds of the climatology.
             
         nbins : int, optional
             Number of bins to stratify the forecasts into. The default is 5.
             NOTE: The bins are of equal width. The number of bins should be lesser than the dimension of observation.
             
-        weights : numpy.ndarray, optional
-            The weights for the forecast data. It should have the same shape as the forecast data.
+        weights : numpy.ndarray, shape (nsim,mem_fc), optional
+            The weights of the members of the ensemble forecast. It should have the same shape as the forecast data.
 
         Returns
         -------
@@ -151,7 +150,7 @@ class ReliabilityDiagram:
         The returned table has "nbins" rows and two columns.  
         
         Returns:
-        Contingency table: numpy.ndarray of shape (nbins,2).
+            Contingency table: numpy.ndarray of shape (nbins,2).
             NOTE: The first column corresponds to the "yes" event, whereas the second column corresponds to the "no" event.
         '''
         # Build contingency table
@@ -182,7 +181,7 @@ class ReliabilityDiagram:
         This function returns the observed relative frequency. This is required for plotting the reliability diagram.
         
         Returns:
-        Observed relative frequency
+            Observed relative frequency: numpy.ndarray of shape (nbins,)
         '''
         # Return the observed relative frequency
         c_table = self.contingency_table()
@@ -195,7 +194,8 @@ class ReliabilityDiagram:
         This is required for plotting the reliability diagram.
         
         Returns:
-        lower confidence intervals, upper confidence intervals
+            lower confidence intervals: numpy.ndarray of shape (nbins,)
+            upper confidence intervals: numpy.ndarray of shape (nbins,)
         '''
         # Return the confidence intervals
         c_table = self.contingency_table()
@@ -212,7 +212,9 @@ class ReliabilityDiagram:
         The smaller the reliability component, and the larger the resolution component, the more accurate are the forecasts.
         
         Returns:
-        Brier score, Reliability, Resolution
+            Brier score: float
+            Reliability: float
+            Resolution: float
         '''
         c_table = self.contingency_table()
         #
