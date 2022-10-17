@@ -4,6 +4,8 @@ A package which provides the **contigency table** and all the other ingredients 
 
 A reliability diagram is a diagnostic plot which helps to understand the joint distribution of forecasts and observations for probabilistic forecasts of a dichotomous event (i.e., yes/no event). For a brief description of the reliability diagram, the reader is referred to section 4b of [4].
 
+**For documentation, please refer to https://github.com/clecoz/ReliabilityDiagram** 
+
 _References_:
 
 [1] Sanders, F., 1963: On Subjective Probability Forecasting. Journal of Applied Meteorology and Climatology, 2 (2), 191–201, https://doi.org/10.1175/1520-0450(1963)002<0191:OSPF>2.0.CO;2, URL https://journals.ametsoc.org/view/journals/apme/2/2/1520-0450_1963_002_0191_ospf_2_0_co_2.xml, publisher: American Meteorological Society Section: Journal of Applied Meteorology and Climatology.
