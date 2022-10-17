@@ -54,13 +54,13 @@ class ReliabilityDiagram:
 
         '''
         # check conformity
-        if type(observation) is not np.ndarray:
+        if (observation is not None) and (type(observation) is not np.ndarray):
             observation = np.array(observation)
         
-        if type(forecast) is not np.ndarray:
+        if (forecast is not None) and (type(forecast) is not np.ndarray):
             forecast = np.array(forecast)
         
-        if type(climatology) is not np.ndarray:
+        if (climatology is not None) and (type(climatology) is not np.ndarray):
             climatology = np.array(climatology)
             
         if (weights is not None) and (type(weights) is not np.ndarray):
@@ -106,7 +106,6 @@ class ReliabilityDiagram:
         if (weights is not None) and (weights.shape != forecast.shape):
             raise ValueError("forecast and weights must have the same shape.")
             exit
-
 
         #original attributes
         self.ob = observation
