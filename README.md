@@ -2,7 +2,17 @@
 
 A package which provides the **contigency table** and all the other ingredients required to plot a reliability diagram. We also provide examples to show how this package could be used to create customized reliability diagrams based on user requirements.
 
-A reliability diagram is a diagnostic plot which helps to understand the joint distribution of forecasts and observations for probabilistic forecasts of a dichotomous event (i.e., yes/no event). For a brief description of the reliability diagram, the reader is referred to section 4b of [4].
+A reliability diagram is a diagnostic plot to understand the probabilistic forecast quality of a forecasting system in forecasting categorical events. An example of a categorical event can be the probability for the daily average temperature in Paris to be in the lower tercile of the climatological distribution. Obtaining a contingency table forms an essential first step in producing a reliability diagram. A contingency table is a matrix indicating the number of times an event forecasted with a certain probability occurs (or not). The probabilities are usually binned. A contingency tale is produced by first binning the sample according to forecast probability, and then by computing the frequency of the observed event for all of the forecasts in each bin. A typical contingency table is shown below:
+
+| Forecast probability | Event observed | Event not observed |
+| :----:               |    :----:      |        :----:      |
+| 0.0 - 0.2            | y1             | x1                 |
+| 0.2 - 0.4            | y2             | x2                 |
+| 0.4 - 0.6            | y3             | x3                 |
+| 0.6 - 0.8            | y4             | x4                 |
+| 0.8 - 1.0            | y5             | x5                 |
+
+A reliability diagram is a plot of the observed frequency against the forecast probability for each bin. The points are generally plotted at the midpoints of the bins. A perfectly reliable forecasting system has points lying on the 45° diagonal line, indicating that the forecast probability is essesntially equal to observed frequency on average. Climatological frequency line is drawn horizontally at a location corresponding to the event, for e.g. the climatological frequency of a tercile is 1/3 and that of decile is 1/10. Similarly, the average forecast porbability line is drawn vertically corresponding to the event. For a brief description of the reliability diagram, the reader is referred to section 9.4.4 in Chapter 9 in [3] or section 4b in [4] or section 4.3 in [5].
 
 **For documentation, please refer to https://github.com/clecoz/ReliabilityDiagram** 
 
@@ -15,6 +25,8 @@ _References_:
 [3] Wilks, D. S., 2019: Chapter 9 - forecast verification. In Statistical methods in the atmospheric sciences. 4th ed., Elsevier, Cambridge.
 
 [4] Goutham, N., Plougonven, R., Omrani, H., Parey, S., Tankov, P., Tantet, A., Hitchcock, P., & Drobinski, P. (2022). How Skillful Are the European Subseasonal Predictions of Wind Speed and Surface Temperature?, Monthly Weather Review, 150(7), 1621-1637. Retrieved Sep 25, 2022, from https://journals.ametsoc.org/view/journals/mwre/150/7/MWR-D-21-0207.1.xml
+
+[5] Coelho, C. A. S., B. Brown, L. Wilson, M. Mittermaier, and B. Casati, 2019: Forecast verification for S2S timescales. Sub-Seasonal to Seasonal Prediction: The Gap between Weather and Climate Forecasting, A. Robertson, and F. Vitart, Eds., Elsevier, 337–361, Chapter: 16.
 
 ---
 ## _Installation:_
