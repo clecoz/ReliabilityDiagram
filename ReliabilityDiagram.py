@@ -54,6 +54,18 @@ class ReliabilityDiagram:
 
         '''
         # check conformity
+        if type(observation) is not np.ndarray:
+            observation = np.array(observation)
+        
+        if type(forecast) is not np.ndarray:
+            forecast = np.array(forecast)
+        
+        if type(climatology) is not np.ndarray:
+            climatology = np.array(climatology)
+            
+        if (weights is not None) and (type(weights) is not np.ndarray):
+            weights = np.array(weights)
+            
         if (observation.ndim != 1) or (forecast.ndim!= 2) or (climatology.ndim != 2):
             raise ValueError('Please make sure that observation, forecast and climatology have the required shapes!')
             exit
