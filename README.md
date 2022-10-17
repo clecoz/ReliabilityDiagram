@@ -12,7 +12,7 @@ A reliability diagram is a diagnostic plot to understand the probabilistic forec
 | 0.6 - 0.8            | y4             | x4                 |
 | 0.8 - 1.0            | y5             | x5                 |
 
-A reliability diagram is a plot of the observed frequency against the forecast probability for each bin. The points are generally plotted at the midpoints of the bins. A perfectly reliable forecasting system has points lying on the 45° diagonal line, indicating that the forecast probability is essesntially equal to observed frequency on average. Climatological frequency line is drawn horizontally at a location corresponding to the event, for e.g. the climatological frequency of a tercile is 1/3 and that of decile is 1/10. Similarly, the average forecast porbability line is drawn vertically corresponding to the event. For a brief description of the reliability diagram, the reader is referred to section 9.4.4 in Chapter 9 in [3] or section 4b in [4] or section 4.3 in [5].
+A reliability diagram is a plot of the observed frequency against the forecast probability for each bin. The points are generally plotted at the midpoints of the bins. A perfectly reliable forecasting system has points lying on the 45° diagonal line, indicating that the forecast probability is essesntially equal to observed frequency on average. Climatological frequency line is drawn horizontally at a location corresponding to the event, for e.g. the climatological frequency of a tercile is 1/3 and that of decile is 1/10. Similarly, the average forecast porbability line is drawn vertically corresponding to the event. The smaller the distance between the points and the 45° line, the higher is the reliability of the forecasting system. The larger the distance between the points and the horizontal climatological line, the higher is the resolution of the forecasting system. The line that bisects the angle between the perfect reliability line (i.e., 45° line) and the horizontal climatological line is called the no skill line. On this line, the reliability and the resolution components become equal and so the forecast skill (measured using Brier Skill Score ([5], [2], [3])) becomes equal to that of climatology. Accordingly, the points located within the shaded region contribute positively to skill. For a more detailed description of the reliability diagram, the reader is referred to section 9.4.4 of Chapter 9 in [3] or section 4b in [4] or section 4.3 in [5].
 
 **For documentation, please refer to https://github.com/clecoz/ReliabilityDiagram** 
 
@@ -27,6 +27,8 @@ _References_:
 [4] Goutham, N., Plougonven, R., Omrani, H., Parey, S., Tankov, P., Tantet, A., Hitchcock, P., & Drobinski, P. (2022). How Skillful Are the European Subseasonal Predictions of Wind Speed and Surface Temperature?, Monthly Weather Review, 150(7), 1621-1637. Retrieved Sep 25, 2022, from https://journals.ametsoc.org/view/journals/mwre/150/7/MWR-D-21-0207.1.xml
 
 [5] Coelho, C. A. S., B. Brown, L. Wilson, M. Mittermaier, and B. Casati, 2019: Forecast verification for S2S timescales. Sub-Seasonal to Seasonal Prediction: The Gap between Weather and Climate Forecasting, A. Robertson, and F. Vitart, Eds., Elsevier, 337–361, Chapter: 16.
+
+[6] Brier, G. W., 1950: Verification of forecasts expressed in terms of probability. 3.
 
 ---
 ## _Installation:_
