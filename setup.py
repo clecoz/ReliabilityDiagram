@@ -10,7 +10,7 @@ AUTHOR_EMAIL = 'naveen.goutham@outlook.com, camille.lecoz@laposte.net'
 URL = 'https://github.com/clecoz/ReliabilityDiagram'
 
 LICENSE = 'Apache License 2.0'
-DESCRIPTION = 'A package which provides all the ingredients required to plot a reliability diagram. A reliability diagram is a diagnostic plot which helps to understand the joint distribution of forecasts and observations for probabilistic forecasts of a dichotomous event (i.e., yes/no event).'
+DESCRIPTION = 'A package which provides the contingency table and all the other ingredients required to plot a reliability diagram. A reliability diagram is a diagnostic plot which helps to understand the joint distribution of forecasts and observations for probabilistic forecasts of a dichotomous event (i.e., yes/no event).'
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
