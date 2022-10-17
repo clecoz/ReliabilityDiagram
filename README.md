@@ -1,6 +1,6 @@
 # Documentation  
 
-A package which provides all the ingredients required to plot a reliability diagram. We also provide examples to show how this package could be used to create customized reliability diagrams based on user requirements.
+A package which provides the **contigency table** and all the other ingredients required to plot a reliability diagram. We also provide examples to show how this package could be used to create customized reliability diagrams based on user requirements.
 
 A reliability diagram is a diagnostic plot which helps to understand the joint distribution of forecasts and observations for probabilistic forecasts of a dichotomous event (i.e., yes/no event). For a brief description of the reliability diagram, the reader is referred to section 4b of [4].
 
