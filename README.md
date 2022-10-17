@@ -2,6 +2,8 @@
 
 A package which provides the **contigency table** and all the other ingredients required to plot a reliability diagram. We also provide examples to show how this package could be used to create customized reliability diagrams based on user requirements.
 
+**For documentation, please refer to https://github.com/clecoz/ReliabilityDiagram** 
+
 A reliability diagram is a diagnostic plot to understand the probabilistic forecast quality of a forecasting system in forecasting categorical events. An example of a categorical event can be the probability for the daily average temperature in Paris to be in the lower tercile of the climatological distribution. Obtaining a contingency table forms an essential first step in producing a reliability diagram. A contingency table is a matrix indicating the number of times an event forecasted with a certain probability occurs (or not). The probabilities are usually binned. A contingency tale is produced by first binning the sample according to forecast probability, and then by computing the frequency of the observed event for all of the forecasts in each bin. A typical contingency table is shown below:
 
 | Forecast probability | Event observed | Event not observed |
@@ -13,8 +15,6 @@ A reliability diagram is a diagnostic plot to understand the probabilistic forec
 | 0.8 - 1.0            | y5             | x5                 |
 
 A reliability diagram is a plot of the observed frequency against the forecast probability for each bin. The points are generally plotted at the midpoints of the bins. A perfectly reliable forecasting system has points lying on the 45° diagonal line, indicating that the forecast probability is essesntially equal to observed frequency on average. Climatological frequency line is drawn horizontally at a location corresponding to the event, for e.g. the climatological frequency of a tercile is 1/3 and that of decile is 1/10. Similarly, the average forecast porbability line is drawn vertically corresponding to the event. The smaller the distance between the points and the 45° line, the higher is the reliability of the forecasting system. The larger the distance between the points and the horizontal climatological line, the higher is the resolution of the forecasting system. The line that bisects the angle between the perfect reliability line (i.e., 45° line) and the horizontal climatological line is called the no skill line. On this line, the reliability and the resolution components become equal and so the forecast skill (measured using Brier Skill Score ([5], [2], [3])) becomes equal to that of climatology. Accordingly, the points located within the shaded region contribute positively to skill. For a more detailed description of the reliability diagram, the reader is referred to section 9.4.4 of Chapter 9 in [3] or section 4b in [4] or section 4.3 in [5].
-
-**For documentation, please refer to https://github.com/clecoz/ReliabilityDiagram** 
 
 _References_:
 
