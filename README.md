@@ -153,7 +153,7 @@ print(bs, rel, res)
 ```python
 # Compute needed elements for diagram
 yi = data.bins + (data.bins[1]-data.bins[0])/2   # mid-points of the bins
-oi = data.observed_frequency
+oi = data.observed_frequency()
 ci_low, ci_upp = data.confidence_intervals()
 wti = np.sum(c_table,axis=1)/np.sum(c_table) 
 
