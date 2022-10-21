@@ -216,7 +216,7 @@ class ReliabilityDiagram:
     
     def forecast_attributes(self):
         '''
-        This method computes the brier score, the reliability and the resolution attributes.
+        This method computes the Brier score, the reliability and the resolution attributes from the contingency table.
         
         NOTE:
         Perfect forecasts will have a brier score of "zero".
