@@ -88,7 +88,7 @@ _Returns_: The observed relative frequency for each bin. This is required for pl
 _Returns_: This function returns the lower and the upper confidence intervals, respectively, corresponding to the observed frequency. This is required for plotting the reliability diagram.
 
 **forecast_attributes()**:  
-This method computes the Brier Score along with the reliability and the resolution attributes.  
+This method computes the Brier Score along with the reliability and the resolution attributes using the contingency table.  
 _Returns_: Brier Score, Reliability, Resolution.
 
 ---
