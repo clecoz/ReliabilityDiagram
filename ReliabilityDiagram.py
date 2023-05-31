@@ -229,7 +229,7 @@ class ReliabilityDiagram:
         '''
         c_table = self.contingency_table()
         #
-        yi = self.bins  # forecast probability
+        yi = self.bins + (self.bins[1]-self.bins[0])/2  # forecast probability (middle of the bins)
         oi = self.observed_frequency()    # observed frequency
         wti = np.sum(c_table,axis=1)/np.sum(c_table)    # weights=number of forecasts yi / total number of forecasts
         om = np.sum(c_table[:,0])/np.sum(c_table)   # overall (unconditional) relative frequency
@@ -238,4 +238,4 @@ class ReliabilityDiagram:
         rel = np.nansum(((yi - oi)**2)*wti)    # reliability component of the Brier score
         res = np.nansum(((oi - o_bar)**2)*wti) # resolution component of the Brier score
         bs = rel - res + om*(1-om)             # brier score
-        return bs, rel, res
+        return bs, rel, res 
