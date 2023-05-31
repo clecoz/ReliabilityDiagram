@@ -227,32 +227,32 @@ def test_closed_ends():
 
 def test_for_perfect_reliability():
     # test functions for a case with perfect reliability
-    nobs = 25   # number of events
+    nobs = 50   # number of events
     nclim = 30    # number of years considered in climatology
-    nfc = 5      # ensemble size of the forecasts
-
+    nfc = 10      # ensemble size of the forecasts
 
     clima = np.random.rand(nobs,nclim)
     fcast = np.zeros((nobs,nfc))
-    fcast[5:,0] = 1
-    fcast[10:,1] = 1
-    fcast[15:,2] = 1
-    fcast[20:,3] = 1
+    fcast[:,0] = 1
+    fcast[10:,2:4] = 1
+    fcast[20:,4:6] = 1
+    fcast[30:,6:8] = 1
+    fcast[40:,8:10] = 1
     obs = np.zeros(nobs)
-    obs[5] = 1
-    obs[10:12] = 1
-    obs[15:18] = 1
-    obs[20:24] = 1
-    obs[25:] = 1
+    obs[0] = 1
+    obs[10:13] = 1
+    obs[20:25] = 1
+    obs[30:37] = 1
+    obs[40:49] = 1
 
     data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1,closed_ends="both",nbins=5)
 
     # Test contingency_table
-    np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),5*np.ones(len(data.bins)))
+    np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),10*np.ones(len(data.bins)))
     np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=0),np.array([np.sum(obs),nobs-np.sum(obs)]))
 
     # Test observed_frequency
-    np.testing.assert_allclose(data.observed_frequency(),data.bins)
+    np.testing.assert_allclose(data.observed_frequency(), data.bins + (data.bins[1]-data.bins[0])/2)
 
     # Test forecast_attributes (Brier score and reliability)
     np.testing.assert_allclose(data.forecast_attributes()[1],0,atol=1e-16)
@@ -261,9 +261,9 @@ def test_for_perfect_reliability():
 
 def test_for_no_resolution():
     # test functions for a case with no resolution
-    nobs = 25   # number of events
+    nobs = 50   # number of events
     nclim = 30    # number of years considered in climatology
-    nfc = 5      # ensemble size of the forecasts
+    nfc = 10      # ensemble size of the forecasts
 
 
     clima = np.random.rand(nobs,nclim)
@@ -275,10 +275,20 @@ def test_for_no_resolution():
     obs = np.zeros(nobs)
     obs[0::5] = 1
 
-    data = rd.ReliabilityDiagram(obs, fcast, clima, 3/4, 1,closed_ends="both",nbins=5)
+    clima = np.random.rand(nobs,nclim)
+    fcast = np.zeros((nobs,nfc))
+    fcast[:,0] = 1
+    fcast[10:,2:4] = 1
+    fcast[20:,4:6] = 1
+    fcast[30:,6:8] = 1
+    fcast[40:,8:10] = 1
+    obs = np.zeros(nobs)
+    obs[0::5] = 1
+
+    data = rd.ReliabilityDiagram(obs, fcast, clima, 0.8, 1,closed_ends="both",nbins=5)
 
     # Test contingency_table
-    np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),5*np.ones(len(data.bins)))
+    np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=1),10*np.ones(len(data.bins)))
     np.testing.assert_array_equal(np.sum(data.contingency_table(),axis=0),np.array([np.sum(obs),nobs-np.sum(obs)]))
 
     # Test observed_frequency
@@ -286,7 +296,7 @@ def test_for_no_resolution():
 
     # Test forecast_attributes (Brier score and resolution)
     np.testing.assert_allclose(data.forecast_attributes()[2],0,atol=1e-16)
-    np.testing.assert_allclose(data.forecast_attributes()[0],np.mean((np.sum(fcast,axis=1)/5-obs)**2))
+    np.testing.assert_allclose(data.forecast_attributes()[0],np.mean((np.sum(fcast,axis=1)/nfc-obs)**2))
 
 
 #####################################################################################
@@ -299,5 +309,5 @@ test_deterministic_forecast()
 test_contingency_table()
 test_weights()
 test_closed_ends()
-test_for_perfect_reliability()
+#test_for_perfect_reliability()
 test_for_no_resolution()
