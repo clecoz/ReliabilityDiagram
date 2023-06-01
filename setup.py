@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.1'
+VERSION = '0.0.3'
 PACKAGE_NAME = 'ReliabilityDiagram'
 AUTHOR = 'Naveen Goutham, Camille Le Coz'
 AUTHOR_EMAIL = 'naveen.goutham@outlook.com, camille.lecoz@laposte.net'
